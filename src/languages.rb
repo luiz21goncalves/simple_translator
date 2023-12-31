@@ -116,4 +116,8 @@ class Languages # rubocop:disable Metrics/ClassLength
 
     puts table
   end
+
+  def self.get_value(key)
+    @languages[key]
+  end
 end
