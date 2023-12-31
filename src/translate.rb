@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'languages'
+require_relative 'lecto'
 
 # Translate class
 class Translate
+  attr_reader :translated_phrase
   attr_accessor :to, :from, :phrase
 
   def call
@@ -40,9 +42,19 @@ class Translate
   end
 
   def translate
-    print "Traduzindo '#{@phrase}' de #{Languages.get_value(@from)} para #{Languages.get_value(@to)}"
+    puts "Traduzindo '#{@phrase}' de #{Languages.get_value(@from)} para #{Languages.get_value(@to)}."
+
+    lecto = Lecto.new
+
+    response = lecto.translate(to: @to, from: @from, phrase: @phrase)
+
+    json = JSON.parse(response.body)
+
+    @translated_phrase = json['translations'][0]['translated'][0]
 
     save
+
+    puts "Tradução: '#{@translated_phrase}'"
   end
 
   private
@@ -57,7 +69,7 @@ class Translate
     File.open(filename, 'w') do |line|
       line.puts("de #{Languages.get_value(@from)} para #{Languages.get_value(@to)}")
       line.puts("Texto Original: #{@phrase}")
-      line.puts('Tradução:')
+      line.puts("Tradução: #{@translated_phrase}")
     end
   end
 end
